@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+       - echo check version
+       - mvn -version
+       - aws --version
+       - docker version
+       - echo login to ECR
+       - put ecr login command here
+       
+  build:
+    commands:
+       - echo Build started on `date`
+       - echo Running maven commands
+       - mvn clean install package
+       - echo Building Docker Images
+       - cp Docker/Dockerfile target/Dockerfile
+       - cd target
+       - docker build -t cicd_ecr .
+       - docker tag cicd_ecr:latest 871849853672.dkr.ecr.us-east-1.amazonaws.com/cicd_ecr:latest
+       
+  post_build:
+    commands:
+       - echo Build started on `date`
+       - echo Pushing Docker Image
+       - docker push 871849853672.dkr.ecr.us-east-1.amazonaws.com/cicd_ecr:latest 
+    
+artifacts:
+  files:
+    - target/cicd-0.0.1-SNAPSHOT.jar
+    - target/Dockerfile
